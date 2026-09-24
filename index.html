@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>राम नाम जाप</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2a0e0b">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="राम जाप">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi&family=Mukta:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#2a0e0b;--bg2:#4a1a10;--gold:#f2b84b;--saff:#e8782a;--ivory:#fbf1dc;--dim:#c9a27a}
+*{box-sizing:border-box;margin:0}
+html,body{min-height:100%}
+body{background:radial-gradient(circle at 50% 30%,var(--bg2),var(--bg) 70%);color:var(--ivory);font-family:"Mukta","Noto Sans Devanagari",system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px 16px 40px;gap:18px}
+h1{font-family:"Tiro Devanagari Hindi","Noto Serif Devanagari",serif;font-weight:400;font-size:1.5rem;color:var(--gold)}
+.stats{display:flex;gap:22px;text-align:center}
+.stats div b{display:block;font-size:1.6rem;color:var(--ivory)}
+.stats div span{font-size:.85rem;color:var(--dim)}
+.mala{position:relative;width:min(88vw,340px);aspect-ratio:1}
+.mala svg{position:absolute;inset:0;width:100%;height:100%}
+.bead{fill:#5c2a1a;transition:fill .25s}
+.bead.on{fill:var(--gold)}
+#tap{position:absolute;inset:17%;border-radius:50%;border:0;cursor:pointer;background:radial-gradient(circle at 35% 30%,#ff9a4d,var(--saff) 55%,#a8410f);color:var(--ivory);font-family:"Tiro Devanagari Hindi","Noto Serif Devanagari",serif;font-size:clamp(3.4rem,17vw,5.2rem);box-shadow:0 0 40px #e8782a55,inset 0 -8px 20px #0004;transition:transform .08s;-webkit-tap-highlight-color:transparent;user-select:none}
+#tap:active,#tap.pop{transform:scale(.94)}
+#tap:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+.ring{position:absolute;inset:17%;border-radius:50%;border:2px solid var(--gold);pointer-events:none;animation:ring .7s ease-out forwards}
+@keyframes ring{to{transform:scale(1.35);opacity:0}}
+.goal{width:min(88vw,340px)}
+.bar{height:10px;border-radius:5px;background:#5c2a1a;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--saff),var(--gold));transition:width .3s}
+.goal p{margin-top:6px;font-size:.95rem;color:var(--dim);text-align:center}
+.week{display:flex;gap:8px;align-items:flex-end;height:70px}
+.week div{width:30px;text-align:center;font-size:.72rem;color:var(--dim)}
+.week i{display:block;background:var(--saff);border-radius:3px 3px 0 0;min-height:3px;margin-bottom:3px}
+.week .t i{background:var(--gold)}
+details{width:min(88vw,340px);background:#ffffff0d;border-radius:12px;padding:12px 14px}
+summary{cursor:pointer;color:var(--gold)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;font-size:.95rem}
+select,input[type=number]{background:var(--bg);color:var(--ivory);border:1px solid var(--dim);border-radius:6px;padding:4px 6px;font:inherit;width:78px}
+.btn{background:var(--saff);color:#fff;border:0;border-radius:8px;padding:8px 12px;font:inherit;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--dim);color:var(--ivory)}
+#toast{position:fixed;top:14px;left:50%;transform:translate(-50%,-140%);background:var(--gold);color:#3a1408;padding:12px 18px;border-radius:12px;max-width:90vw;text-align:center;font-weight:600;transition:transform .35s;z-index:5}
+#toast.show{transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){.ring{animation:none;display:none}}
+
+.tabs{display:flex;gap:8px}.tabs button{background:transparent;border:1px solid var(--dim);color:var(--ivory);border-radius:20px;padding:6px 18px;font:inherit;cursor:pointer}.tabs button.on{background:var(--gold);color:#3a1408;border-color:var(--gold)}
+.sess{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+#likhit{display:none;width:min(88vw,340px);text-align:center}
+#page{min-height:150px;background:var(--ivory);color:#7a2a10;border-radius:10px;padding:12px;font-family:"Tiro Devanagari Hindi","Noto Serif Devanagari",serif;font-size:1.25rem;line-height:1.7;text-align:left;margin:10px 0;word-break:break-word}
+#lin{width:100%;padding:10px;font:inherit;font-size:1.1rem;border-radius:8px;border:2px solid var(--gold);background:var(--bg);color:var(--ivory);text-align:center}
+.card{width:min(88vw,340px);background:#ffffff0d;border-radius:12px;padding:12px 14px;font-size:.95rem}
+.card .bar{margin:8px 0 6px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:min(88vw,340px)}
+.badges span{font-size:.8rem;padding:4px 10px;border-radius:14px;border:1px solid #5c2a1a;color:#8a6a55;filter:grayscale(1);opacity:.6}
+.badges span.on{border-color:var(--gold);color:var(--gold);filter:none;opacity:1}
+</style>
+</head>
+<body>
+<h1>श्री राम नाम जाप</h1>
+<div class="stats">
+  <div><b id="today">0</b><span>आज</span></div>
+  <div><b id="malas">0</b><span>माला</span></div>
+  <div><b id="streak">0</b><span>दिन लगातार</span></div>
+  <div><b id="total">0</b><span>कुल जाप</span></div>
+</div>
+
+<div class="tabs"><button id="tJ" class="on">जाप</button><button id="tL">लिखित जाप</button></div>
+<div class="mala jv">
+  <svg viewBox="0 0 300 300" id="beads" aria-hidden="true"></svg>
+  <button id="tap" aria-label="राम जाप करें">राम</button>
+</div>
+
+<div class="goal jv">
+  <div class="bar"><i id="fill"></i></div>
+  <p id="goalTxt"></p>
+</div>
+
+<div class="week" id="week" aria-label="पिछले 7 दिन"></div>
+<div class="sess jv"><select id="sessMin"><option value="5">5 मिनट</option><option value="11">11 मिनट</option><option value="21">21 मिनट</option></select><button class="btn" id="sessBtn">बैठक शुरू करें</button><span id="sessTxt"></span></div>
+<div id="likhit">
+  <div id="page"></div>
+  <input id="lin" placeholder="ram या राम लिखकर Space/Enter दबाएँ" autocomplete="off" autocapitalize="off">
+  <p id="lcnt" style="margin-top:8px;color:var(--dim);font-size:.9rem"></p>
+</div>
+<div class="card" id="sk"></div>
+<div class="badges" id="badges"></div>
+
+<details>
+  <summary>सेटिंग्स और रिमाइंडर</summary>
+  <div class="row"><span>रोज़ का लक्ष्य</span>
+    <select id="goal"><option>108</option><option>324</option><option>540</option><option>1008</option><option>2100</option><option>5100</option></select></div>
+  <div class="row"><span>संकल्प (जाप / दिन)</span><span><input type="number" id="skT" value="125000" style="width:84px"> <input type="number" id="skD" value="40" style="width:56px"></span></div>
+  <div class="row"><button class="btn" id="skGo">संकल्प शुरू करें</button><button class="btn ghost" id="skDel">हटाएँ</button></div>
+  <div class="row"><span>फ़ोन में इंस्टॉल करें</span><button class="btn" id="inst">इंस्टॉल</button></div>
+  <div class="row"><span>हर घंटे रिमाइंडर</span><button class="btn" id="notifBtn">चालू करें</button></div>
+  <div class="row"><span>रिमाइंडर समय (घंटे)</span>
+    <span><input type="number" id="from" min="0" max="23"> से <input type="number" id="to" min="0" max="23"></span></div>
+  <div class="row"><span>आवाज़ / वाइब्रेशन</span><input type="checkbox" id="sound"></div>
+  <div class="row"><button class="btn ghost" id="test">टेस्ट रिमाइंडर</button><button class="btn ghost" id="resetToday">आज का रीसेट</button></div>
+</details>
+<div id="toast" role="status"></div>
+
+<script>
+(function(){
+var KEY='ramNaamJaap.v1';
+var S={total:0,days:{},goal:108,notif:false,from:6,to:22,sound:true,lastHour:'',goalDone:'',sankalp:null,badges:{},likhit:0};
+try{var raw=localStorage.getItem(KEY);if(raw)Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}syncSet();}
+function syncSet(){
+  try{
+    if(!window.caches)return;
+    var u=new URL('settings.json',document.baseURI).href;
+    caches.open('jaap-settings').then(function(c){
+      return c.match(u).then(function(old){return old?old.json():{};}).then(function(o){
+        return c.put(u,new Response(JSON.stringify({notif:S.notif,from:S.from,to:S.to,goal:S.goal,date:dk(),today:todayN(),last:(o&&o.last)||''})));
+      });
+    }).catch(function(){});
+  }catch(e){}
+}
+function dk(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function $(id){return document.getElementById(id);}
+function todayN(){return S.days[dk()]||0;}
+
+// mala beads
+var svg=$('beads'),NS='http://www.w3.org/2000/svg',beads=[];
+for(var i=0;i<108;i++){
+  var a=(i/108)*Math.PI*2-Math.PI/2,c=document.createElementNS(NS,'circle');
+  c.setAttribute('cx',150+130*Math.cos(a));c.setAttribute('cy',150+130*Math.sin(a));
+  c.setAttribute('r',i===0?6:4.2);c.setAttribute('class','bead');svg.appendChild(c);beads.push(c);
+}
+
+function streak(){
+  var d=new Date(),n=0;
+  if(!S.days[dk(d)])d.setDate(d.getDate()-1);
+  while(S.days[dk(d)]>0){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+
+function render(){
+  var t=todayN(),m=S.total%108;
+  $('today').textContent=t;$('total').textContent=S.total;
+  $('malas').textContent=Math.floor(S.total/108);$('streak').textContent=streak();
+  for(var i=0;i<108;i++)beads[i].classList.toggle('on',i<m);
+  var p=Math.min(100,t/S.goal*100);$('fill').style.width=p+'%';
+  $('goalTxt').textContent=t>=S.goal?'आज का लक्ष्य पूरा — जय श्री राम 🙏':'लक्ष्य '+S.goal+' · बाकी '+(S.goal-t);
+  var w=$('week');w.innerHTML='';
+  var max=1,arr=[];
+  for(var k=6;k>=0;k--){var d=new Date();d.setDate(d.getDate()-k);var v=S.days[dk(d)]||0;arr.push([d,v]);if(v>max)max=v;}
+  arr.forEach(function(x,idx){
+    var el=document.createElement('div');if(idx===6)el.className='t';
+    el.innerHTML='<i style="height:'+Math.round(x[1]/max*50)+'px"></i>'+['र','सो','मं','बु','गु','शु','श'][x[0].getDay()];
+    el.title=x[1]+' जाप';w.appendChild(el);
+  });
+  extra();
+}
+
+// toast
+var tt;function toast(msg){var e=$('toast');e.textContent=msg;e.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){e.classList.remove('show');},3500);}
+
+// sound
+var ac;function tone(f,dur,vol){
+  if(!S.sound)return;
+  try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;o.type='sine';
+    g.gain.setValueAtTime(vol,ac.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+dur);
+    o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+dur);}catch(e){}
+}
+function buzz(ms){if(S.sound&&navigator.vibrate)navigator.vibrate(ms);}
+
+var msgs=[
+ 'राम नाम की एक माला हो जाए? 🙏','एक घंटा बीता — अब कुछ पल राम के नाम 🌸','राम राम! थोड़ा जाप कर लें, मन शांत रहेगा।',
+ 'जहाँ राम, वहाँ विश्राम — आइए, जाप करें 🚩','काम के बीच 1 मिनट राम नाम… बस 11 बार?','हर नाम एक पुण्य — अभी जाप शुरू करें 🙏',
+ 'सीता राम! आज का लक्ष्य आपका इंतज़ार कर रहा है।','स्क्रीन से नज़र हटाइए, राम नाम में मन लगाइए 🌼'];
+function pushMsg(){
+  var t=todayN(),left=Math.max(0,S.goal-t),base=msgs[Math.floor(Math.random()*msgs.length)];
+  var st=skStats(),sk=st?' संकल्प के लिए आज ~'+st.perDay+' जाप चाहिए।':'';return base+sk+(left>0?' आज '+t+' जाप हुए, लक्ष्य में '+left+' बाकी।':' आज का लक्ष्य पूरा है, और भी करें! 🎉');
+}
+function fire(msg){
+  toast(msg);
+  if('Notification' in window&&Notification.permission==='granted'){
+    var o={body:msg,tag:'ram-jaap',renotify:true,icon:'icons/icon-192.png',badge:'icons/icon-192.png'};
+    var fb=function(){try{new Notification('राम नाम जाप',o);}catch(e){}};
+    if(navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(function(r){return r.showNotification('राम नाम जाप',o);}).catch(fb);
+    else fb();
+  }
+}
+
+// tap
+var ta=$('tap');
+function jaap(){
+  var day=dk();S.days[day]=(S.days[day]||0)+1;S.total++;
+  ta.classList.add('pop');setTimeout(function(){ta.classList.remove('pop');},70);
+  var r=document.createElement('div');r.className='ring';ta.parentNode.appendChild(r);setTimeout(function(){r.remove();},700);
+  if(S.total%108===0){tone(660,1.4,.25);buzz([40,60,40]);toast('एक माला पूरी! 🌸 जय श्री राम — कुल '+(S.total/108)+' माला');}
+  else{tone(520,.18,.12);buzz(8);}
+  if(S.days[day]>=S.goal&&S.goalDone!==day){S.goalDone=day;toast('🎉 आज का लक्ष्य पूरा! राम जी की कृपा बनी रहे 🙏');}
+  save();render();checkBadges();
+}
+ta.addEventListener('click',jaap);
+document.addEventListener('keydown',function(e){
+  if((e.key===' '||e.key==='Enter')&&e.target===document.body){e.preventDefault();jaap();}
+});
+
+// settings
+$('goal').value=S.goal;$('from').value=S.from;$('to').value=S.to;$('sound').checked=S.sound;
+$('goal').onchange=function(){S.goal=+this.value;S.goalDone='';save();render();};
+$('from').onchange=function(){S.from=Math.max(0,Math.min(23,+this.value||0));save();};
+$('to').onchange=function(){S.to=Math.max(0,Math.min(23,+this.value||0));save();};
+$('sound').onchange=function(){S.sound=this.checked;save();};
+$('resetToday').onclick=function(){
+  if(!confirm('आज के जाप का गिनती रीसेट करें?'))return;
+  var t=todayN();S.total=Math.max(0,S.total-t);delete S.days[dk()];S.goalDone='';save();render();
+};
+function notifLabel(){
+  var b=$('notifBtn');
+  if(!('Notification' in window)){b.textContent='ब्राउज़र सपोर्ट नहीं';b.disabled=true;return;}
+  b.textContent=(S.notif&&Notification.permission==='granted')?'चालू ✓ (बंद करें)':'चालू करें';
+}
+$('notifBtn').onclick=function(){
+  if(S.notif&&Notification.permission==='granted'){S.notif=false;save();notifLabel();toast('रिमाइंडर बंद');return;}
+  Notification.requestPermission().then(function(p){
+    S.notif=(p==='granted');save();notifLabel();if(S.notif)regPeriodic();
+    if(p==='granted')fire('रिमाइंडर चालू हो गया 🙏 हर घंटे राम नाम याद दिलाया जाएगा।');
+    else toast('नोटिफिकेशन की अनुमति नहीं मिली — ब्राउज़र सेटिंग में अनुमति दें।');
+  });
+};
+$('test').onclick=function(){fire(pushMsg());};
+
+// hourly check
+function check(){
+  var d=new Date(),h=d.getHours();
+  if(d.getMinutes()!==0)return;
+  var hk=dk(d)+'-'+h;
+  if(S.lastHour===hk)return;
+  S.lastHour=hk;save();
+  if(!S.notif||h<S.from||h>S.to)return;
+  fire(pushMsg());tone(440,.8,.15);
+}
+setInterval(check,15000);
+document.addEventListener('visibilitychange',render);
+
+
+// ---- v2: sankalp, likhit, badges, session ----
+function skStats(){
+  var k=S.sankalp;if(!k)return null;var done=0;
+  for(var d in S.days)if(d>=k.start)done+=S.days[d];
+  var el=Math.floor((new Date(dk())-new Date(k.start))/864e5)+1;el=Math.max(1,Math.min(k.days,el));
+  var need=Math.ceil(k.target/k.days*el),left=k.days-el+1;
+  return {k:k,done:done,el:el,diff:done-need,perDay:Math.max(0,Math.ceil(Math.max(0,k.target-done)/left))};
+}
+function renderSk(){
+  var st=skStats(),c=$('sk');
+  if(!st){c.innerHTML='🚩 संकल्प लें: सेटिंग्स में कुल जाप और दिन चुनें (जैसे 1,25,000 जाप, 40 दिन)।';return;}
+  var pct=Math.min(100,st.done/st.k.target*100).toFixed(1);
+  var msg=st.done>=st.k.target?'संकल्प पूरा हुआ! जय श्री राम 🎉':(st.diff>=0?'आप '+st.diff+' जाप आगे हैं 🌟':'आप '+(-st.diff)+' जाप पीछे हैं — आज ~'+st.perDay+' जाप करें');
+  c.innerHTML='<b>संकल्प:</b> '+st.done+' / '+st.k.target+' · दिन '+st.el+'/'+st.k.days+'<div class="bar"><i style="width:'+pct+'%"></i></div>'+msg;
+}
+var BD=[['🌱','पहला जाप',()=>S.total>=1],['📿','1 माला',()=>S.total>=108],['🔱','1008 जाप',()=>S.total>=1008],
+ ['🚩','10,000 जाप',()=>S.total>=10000],['🏵️','1 लाख जाप',()=>S.total>=100000],['🔥','7 दिन',()=>streak()>=7],
+ ['🪔','21 दिन',()=>streak()>=21],['🌕','40 दिन',()=>streak()>=40],['✍️','लिखित 108',()=>S.likhit>=108],
+ ['🎯','संकल्प पूरा',()=>{var t=skStats();return !!t&&t.done>=t.k.target;}]];
+function checkBadges(){
+  BD.forEach(function(b,i){if(!S.badges[i]&&b[2]()){S.badges[i]=1;save();toast('🏅 नया बैज: '+b[1]);}});
+  renderBadges();
+}
+function renderBadges(){
+  $('badges').innerHTML=BD.map(function(b,i){return '<span class="'+(S.badges[i]?'on':'')+'">'+b[0]+' '+b[1]+'</span>';}).join('');
+}
+function rl(){
+  var w=S.likhit%108;
+  $('page').textContent=w?new Array(w+1).join('राम '):'यहाँ राम लिखना शुरू करें…';
+  $('lcnt').textContent='पृष्ठ '+(Math.floor(S.likhit/108)+1)+' · '+w+'/108 · कुल लिखित '+S.likhit;
+}
+function extra(){renderSk();renderBadges();rl();}
+function lw(){
+  var v=$('lin').value.trim();
+  if(/^(ram|raam|राम)$/i.test(v)){S.likhit++;$('lin').value='';jaap();}
+  else if(v){toast('कृपया "राम" लिखें');$('lin').value='';}
+}
+$('lin').addEventListener('input',function(){if(/\s$/.test(this.value))lw();});
+$('lin').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();lw();}});
+function view(v){
+  var l=v==='l';
+  document.querySelectorAll('.jv').forEach(function(e){e.style.display=l?'none':'';});
+  $('likhit').style.display=l?'block':'none';
+  $('tJ').classList.toggle('on',!l);$('tL').classList.toggle('on',l);
+  if(l)$('lin').focus();
+}
+$('tJ').onclick=function(){view('j');};$('tL').onclick=function(){view('l');};
+$('skGo').onclick=function(){
+  var t=+$('skT').value,d=+$('skD').value;
+  if(!(t>0&&d>0)){toast('जाप और दिन भरें');return;}
+  S.sankalp={target:t,days:d,start:dk()};save();render();toast('🚩 संकल्प शुरू: '+t+' जाप, '+d+' दिन');
+};
+$('skDel').onclick=function(){S.sankalp=null;save();render();};
+var sess=null,wl=null;
+function fmt(n){return Math.floor(n/60)+':'+String(n%60).padStart(2,'0');}
+function endSess(done){
+  clearInterval(sess.t);var n=todayN()-sess.c0;sess=null;
+  if(wl){try{wl.release();}catch(e){}wl=null;}
+  $('sessBtn').textContent='बैठक शुरू करें';$('sessTxt').textContent='';
+  if(done){tone(392,2.5,.3);buzz([80,80,80]);}
+  toast(done?'🔔 बैठक पूरी — '+n+' जाप हुए। राम राम 🙏':'बैठक रुकी — '+n+' जाप हुए');
+}
+$('sessBtn').onclick=function(){
+  if(sess){endSess(false);return;}
+  var end=Date.now()+(+$('sessMin').value)*60000;
+  try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(l){wl=l;}).catch(function(){});}catch(e){}
+  sess={end:end,c0:todayN()};$('sessBtn').textContent='बैठक रोकें';
+  sess.t=setInterval(function(){
+    var r=Math.round((sess.end-Date.now())/1000);
+    if(r<=0){endSess(true);return;}
+    $('sessTxt').textContent=fmt(r)+' · '+(todayN()-sess.c0)+' जाप';
+  },500);
+};
+function regPeriodic(){
+  if(!navigator.serviceWorker)return;
+  navigator.serviceWorker.ready.then(function(r){
+    if(!('periodicSync' in r))return;
+    return navigator.permissions.query({name:'periodic-background-sync'}).then(function(st){
+      if(st.state==='granted')return r.periodicSync.register('hourly-jaap',{minInterval:3600000});
+    });
+  }).catch(function(){});
+}
+var dip;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dip=e;});
+$('inst').onclick=function(){
+  if(dip){dip.prompt();dip=null;}
+  else toast('ब्राउज़र मेन्यू → Install app / Add to Home screen चुनें। iPhone: Share → Add to Home Screen');
+};
+if('serviceWorker' in navigator&&location.protocol!=='file:'){navigator.serviceWorker.register('sw.js').then(function(){if(S.notif)regPeriodic();}).catch(function(){});}
+notifLabel();render();checkBadges();syncSet();
+})();
+</script>
+</body>
+</html>
