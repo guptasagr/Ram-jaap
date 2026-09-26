@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>राम नाम जाप</title>
+<meta name="theme-color" content="#2a0e0b">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi&family=Mukta:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#2a0e0b;--bg2:#4a1a10;--gold:#f2b84b;--saff:#e8782a;--ivory:#fbf1dc;--dim:#c9a27a}
+*{box-sizing:border-box;margin:0}
+html,body{min-height:100%}
+body{background:radial-gradient(circle at 50% 30%,var(--bg2),var(--bg) 70%);color:var(--ivory);font-family:"Mukta","Noto Sans Devanagari",system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px 16px 40px;gap:18px}
+h1{font-family:"Tiro Devanagari Hindi","Noto Serif Devanagari",serif;font-weight:400;font-size:1.5rem;color:var(--gold)}
+.stats{display:flex;gap:22px;text-align:center}
+.stats div b{display:block;font-size:1.6rem;color:var(--ivory)}
+.stats div span{font-size:.85rem;color:var(--dim)}
+.mala{position:relative;width:min(88vw,340px);aspect-ratio:1}
+.mala svg{position:absolute;inset:0;width:100%;height:100%}
+#beadCount{text-align:center;color:var(--dim);font-size:.95rem;margin-top:-4px}
+#beadCount b{color:var(--gold)}
+.bead{fill:#5c2a1a;transition:fill .25s}
+.bead.on{fill:var(--gold)}
+#tap{position:absolute;inset:17%;border-radius:50%;border:0;cursor:pointer;background:radial-gradient(circle at 35% 30%,#ff9a4d,var(--saff) 55%,#a8410f);color:var(--ivory);font-family:"Tiro Devanagari Hindi","Noto Serif Devanagari",serif;font-size:clamp(3.4rem,17vw,5.2rem);box-shadow:0 0 40px #e8782a55,inset 0 -8px 20px #0004;transition:transform .08s;-webkit-tap-highlight-color:transparent;user-select:none}
+#tap:active,#tap.pop{transform:scale(.94)}
+#tap:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+.ring{position:absolute;inset:17%;border-radius:50%;border:2px solid var(--gold);pointer-events:none;animation:ring .7s ease-out forwards}
+@keyframes ring{to{transform:scale(1.35);opacity:0}}
+.week{display:flex;gap:8px;align-items:flex-end;height:70px}
+.week div{width:30px;text-align:center;font-size:.72rem;color:var(--dim)}
+.week i{display:block;background:var(--saff);border-radius:3px 3px 0 0;min-height:3px;margin-bottom:3px}
+.week .t i{background:var(--gold)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:min(88vw,340px)}
+.badges span{font-size:.8rem;padding:4px 10px;border-radius:14px;border:1px solid #5c2a1a;color:#8a6a55;filter:grayscale(1);opacity:.6}
+.badges span.on{border-color:var(--gold);color:var(--gold);filter:none;opacity:1}
+#toast{position:fixed;top:14px;left:50%;transform:translate(-50%,-140%);background:var(--gold);color:#3a1408;padding:12px 18px;border-radius:12px;max-width:90vw;text-align:center;font-weight:600;transition:transform .35s;z-index:5}
+#toast.show{transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){.ring{animation:none;display:none}}
+</style>
+</head>
+<body>
+<h1>श्री राम नाम जाप</h1>
+<div class="stats">
+  <div><b id="today">0</b><span>आज</span></div>
+  <div><b id="malas">0</b><span>माला</span></div>
+  <div><b id="streak">0</b><span>दिन लगातार</span></div>
+  <div><b id="total">0</b><span>कुल जाप</span></div>
+</div>
+
+<div class="mala">
+  <svg viewBox="0 0 300 300" id="beads" aria-hidden="true"></svg>
+  <button id="tap" aria-label="राम जाप करें">राम</button>
+</div>
+<p id="beadCount"><b>0</b> / 108 माला मनके</p>
+
+<div class="week" id="week" aria-label="पिछले 7 दिन"></div>
+<div class="badges" id="badges"></div>
+
+<div id="toast" role="status"></div>
+
+<script>
+(function(){
+var KEY='ramNaamJaap.v1';
+var S={total:0,days:{},sound:true,badges:{}};
+try{var raw=localStorage.getItem(KEY);if(raw)Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function dk(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function $(id){return document.getElementById(id);}
+function todayN(){return S.days[dk()]||0;}
+
+// mala beads
+var svg=$('beads'),NS='http://www.w3.org/2000/svg',beads=[];
+for(var i=0;i<108;i++){
+  var a=(i/108)*Math.PI*2-Math.PI/2,c=document.createElementNS(NS,'circle');
+  c.setAttribute('cx',150+130*Math.cos(a));c.setAttribute('cy',150+130*Math.sin(a));
+  c.setAttribute('r',i===0?6:4.2);c.setAttribute('class','bead');svg.appendChild(c);beads.push(c);
+}
+
+function streak(){
+  var d=new Date(),n=0;
+  if(!S.days[dk(d)])d.setDate(d.getDate()-1);
+  while(S.days[dk(d)]>0){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+
+function render(){
+  var t=todayN(),m=S.total%108;
+  $('today').textContent=t;$('total').textContent=S.total;
+  $('malas').textContent=Math.floor(S.total/108);$('streak').textContent=streak();
+  for(var i=0;i<108;i++)beads[i].classList.toggle('on',i<m);
+  $('beadCount').innerHTML='<b>'+m+'</b> / 108 माला मनके';
+  var w=$('week');w.innerHTML='';
+  var max=1,arr=[];
+  for(var k=6;k>=0;k--){var d=new Date();d.setDate(d.getDate()-k);var v=S.days[dk(d)]||0;arr.push([d,v]);if(v>max)max=v;}
+  arr.forEach(function(x,idx){
+    var el=document.createElement('div');if(idx===6)el.className='t';
+    el.innerHTML='<i style="height:'+Math.round(x[1]/max*50)+'px"></i>'+['र','सो','मं','बु','गु','शु','श'][x[0].getDay()];
+    el.title=x[1]+' जाप';w.appendChild(el);
+  });
+  renderBadges();
+}
+
+// toast
+var tt;function toast(msg){var e=$('toast');e.textContent=msg;e.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){e.classList.remove('show');},3500);}
+
+// sound
+var ac;function tone(f,dur,vol){
+  if(!S.sound)return;
+  try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;o.type='sine';
+    g.gain.setValueAtTime(vol,ac.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+dur);
+    o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+dur);}catch(e){}
+}
+function buzz(ms){if(S.sound&&navigator.vibrate)navigator.vibrate(ms);}
+
+// tap
+var ta=$('tap');
+function jaap(){
+  var day=dk();S.days[day]=(S.days[day]||0)+1;S.total++;
+  ta.classList.add('pop');setTimeout(function(){ta.classList.remove('pop');},70);
+  var r=document.createElement('div');r.className='ring';ta.parentNode.appendChild(r);setTimeout(function(){r.remove();},700);
+  if(S.total%108===0){tone(660,1.4,.25);buzz([40,60,40]);toast('एक माला पूरी! 🌸 जय श्री राम — कुल '+(S.total/108)+' माला');}
+  else{tone(520,.18,.12);buzz(8);}
+  save();render();checkBadges();
+}
+ta.addEventListener('click',jaap);
+document.addEventListener('keydown',function(e){
+  if((e.key===' '||e.key==='Enter')&&e.target===document.body){e.preventDefault();jaap();}
+});
+
+
+// badges
+var BD=[['🌱','पहला जाप',function(){return S.total>=1;}],['📿','1 माला',function(){return S.total>=108;}],['🔱','1008 जाप',function(){return S.total>=1008;}],
+ ['🚩','10,000 जाप',function(){return S.total>=10000;}],['🏵️','1 लाख जाप',function(){return S.total>=100000;}],
+ ['🔥','7 दिन',function(){return streak()>=7;}],['🪔','21 दिन',function(){return streak()>=21;}],['🌕','40 दिन',function(){return streak()>=40;}]];
+function checkBadges(){
+  BD.forEach(function(b,i){if(!S.badges[i]&&b[2]()){S.badges[i]=1;save();toast('🏅 नया बैज: '+b[1]);}});
+  renderBadges();
+}
+function renderBadges(){
+  $('badges').innerHTML=BD.map(function(b,i){return '<span class="'+(S.badges[i]?'on':'')+'">'+b[0]+' '+b[1]+'</span>';}).join('');
+}
+
+
+document.addEventListener('visibilitychange',render);
+render();checkBadges();
+})();
+</script>
+</body>
+</html>
