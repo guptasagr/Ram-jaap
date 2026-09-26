@@ -18,6 +18,9 @@
 html,body{min-height:100%}
 body{background:radial-gradient(circle at 50% 30%,var(--bg2),var(--bg) 70%);color:var(--ivory);font-family:"Mukta","Noto Sans Devanagari",system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px 16px 40px;gap:18px}
 h1{font-family:"Tiro Devanagari Hindi","Noto Serif Devanagari",serif;font-weight:400;font-size:1.5rem;color:var(--gold)}
+.topbar{display:flex;align-items:center;justify-content:center;gap:10px}
+#syncBtn{background:transparent;border:1px solid var(--dim);color:var(--gold);border-radius:50%;width:34px;height:34px;font-size:1.1rem;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#syncBtn.on{border-color:var(--gold);box-shadow:0 0 8px #f2b84b66}
 .stats{display:flex;gap:22px;text-align:center}
 .stats div b{display:block;font-size:1.6rem;color:var(--ivory)}
 .stats div span{font-size:.85rem;color:var(--dim)}
@@ -45,7 +48,10 @@ h1{font-family:"Tiro Devanagari Hindi","Noto Serif Devanagari",serif;font-weight
 </style>
 </head>
 <body>
-<h1>श्री राम नाम जाप</h1>
+<div class="topbar">
+  <h1>श्री राम नाम जाप</h1>
+  <button id="syncBtn" aria-label="सिंक">☁</button>
+</div>
 <div class="stats">
   <div><b id="today">0</b><span>आज</span></div>
   <div><b id="malas">0</b><span>माला</span></div>
@@ -69,7 +75,7 @@ h1{font-family:"Tiro Devanagari Hindi","Noto Serif Devanagari",serif;font-weight
 var KEY='ramNaamJaap.v1';
 var S={total:0,days:{},sound:true,badges:{}};
 try{var raw=localStorage.getItem(KEY);if(raw)Object.assign(S,JSON.parse(raw));}catch(e){}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function save(){S.updatedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}scheduleSync();}
 function dk(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function $(id){return document.getElementById(id);}
 function todayN(){return S.days[dk()]||0;}
@@ -152,6 +158,59 @@ if('serviceWorker' in navigator&&location.protocol!=='file:'){navigator.serviceW
 
 document.addEventListener('visibilitychange',render);
 render();checkBadges();
+
+// ---- cloud sync (Firebase Realtime Database, no login) ----
+var syncTimer=null;
+function syncCfg(){try{return JSON.parse(localStorage.getItem('ramJaapSync.v1')||'null');}catch(e){return null;}}
+function setSyncCfg(c){try{if(c)localStorage.setItem('ramJaapSync.v1',JSON.stringify(c));else localStorage.removeItem('ramJaapSync.v1');}catch(e){}}
+function syncUrl(){var c=syncCfg();if(!c)return null;return c.url.replace(/\/$/,'')+'/ramJaap/'+encodeURIComponent(c.code)+'.json';}
+function scheduleSync(){if(!syncCfg())return;clearTimeout(syncTimer);syncTimer=setTimeout(function(){syncNow(false);},1500);}
+$('syncBtn').classList.toggle('on',!!syncCfg());
+
+function setupSync(){
+  var url=prompt('Firebase Database URL डालें\n(जैसे https://xxxx-default-rtdb.firebaseio.com):','');
+  if(!url)return;
+  var code=prompt('एक सिंक कोड बनाएं — यही कोड हर डिवाइस में डालना होगा:','');
+  if(!code)return;
+  setSyncCfg({url:url.trim(),code:code.trim()});
+  $('syncBtn').classList.add('on');
+  syncNow(true);
+}
+
+function syncNow(manual){
+  var cfg=syncCfg();
+  if(!cfg){if(manual)setupSync();return;}
+  var u=syncUrl();
+  fetch(u).then(function(r){return r.json();}).then(function(remote){
+    var localT=S.updatedAt||0,remoteT=(remote&&remote.updatedAt)||0;
+    if(remote&&remoteT>localT){
+      S=Object.assign({total:0,days:{},sound:true,badges:{}},remote);
+      try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+      render();checkBadges();
+      toast('☁ दूसरे डिवाइस से डेटा सिंक हुआ');
+    }else{
+      S.updatedAt=Date.now();
+      return fetch(u,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)}).then(function(){
+        try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+        if(manual)toast('☁ सिंक हो गया');
+      });
+    }
+  }).catch(function(){if(manual)toast('☁ सिंक नहीं हो पाया — इंटरनेट या URL चेक करें');});
+}
+
+var lpTimer=null,lpFired=false;
+function lpStart(){lpFired=false;lpTimer=setTimeout(function(){
+  lpFired=true;
+  if(confirm('सिंक सेटिंग बदलें या हटाएं?')){setSyncCfg(null);$('syncBtn').classList.remove('on');setupSync();}
+},700);}
+function lpEnd(){clearTimeout(lpTimer);}
+$('syncBtn').addEventListener('touchstart',lpStart,{passive:true});
+$('syncBtn').addEventListener('touchend',lpEnd);
+$('syncBtn').addEventListener('mousedown',lpStart);
+$('syncBtn').addEventListener('mouseup',lpEnd);
+$('syncBtn').addEventListener('click',function(){if(lpFired){lpFired=false;return;}syncNow(true);});
+
+if(syncCfg())syncNow(false);
 })();
 </script>
 </body>
