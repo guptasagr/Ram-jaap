@@ -201,7 +201,14 @@ function syncNow(manual){
 var lpTimer=null,lpFired=false;
 function lpStart(){lpFired=false;lpTimer=setTimeout(function(){
   lpFired=true;
-  if(confirm('सिंक सेटिंग बदलें या हटाएं?')){setSyncCfg(null);$('syncBtn').classList.remove('on');setupSync();}
+  var cfg=syncCfg();
+  if(cfg){
+    if(confirm('मौजूदा सिंक जानकारी (इसे नोट कर लें):\n\nDatabase URL:\n'+cfg.url+'\n\nSync Code:\n'+cfg.code+'\n\nबदलना/हटाना है तो OK दबाएं, वरना Cancel करें।')){
+      setSyncCfg(null);$('syncBtn').classList.remove('on');setupSync();
+    }
+  }else{
+    setupSync();
+  }
 },700);}
 function lpEnd(){clearTimeout(lpTimer);}
 $('syncBtn').addEventListener('touchstart',lpStart,{passive:true});
