@@ -217,6 +217,7 @@ $('syncBtn').addEventListener('mousedown',lpStart);
 $('syncBtn').addEventListener('mouseup',lpEnd);
 $('syncBtn').addEventListener('click',function(){if(lpFired){lpFired=false;return;}syncNow(true);});
 
+window.addEventListener('online',function(){syncNow(false);});
 if(syncCfg())syncNow(false);
 })();
 </script>
