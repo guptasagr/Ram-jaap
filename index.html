@@ -35,10 +35,11 @@ h1{font-family:"Tiro Devanagari Hindi","Noto Serif Devanagari",serif;font-weight
 #tap:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
 .ring{position:absolute;inset:17%;border-radius:50%;border:2px solid var(--gold);pointer-events:none;animation:ring .7s ease-out forwards}
 @keyframes ring{to{transform:scale(1.35);opacity:0}}
-.week{display:flex;gap:8px;align-items:flex-end;height:70px}
+.week{display:flex;gap:8px;align-items:flex-end;height:82px}
 .week div{width:30px;text-align:center;font-size:.72rem;color:var(--dim)}
 .week i{display:block;background:var(--saff);border-radius:3px 3px 0 0;min-height:3px;margin-bottom:3px}
 .week .t i{background:var(--gold)}
+.week b{display:block;font-size:.65rem;font-weight:600;color:var(--gold);margin-bottom:1px}
 .badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:min(88vw,340px)}
 .badges span{font-size:.8rem;padding:4px 10px;border-radius:14px;border:1px solid #5c2a1a;color:#8a6a55;filter:grayscale(1);opacity:.6}
 .badges span.on{border-color:var(--gold);color:var(--gold);filter:none;opacity:1}
@@ -106,7 +107,7 @@ function render(){
   for(var k=6;k>=0;k--){var d=new Date();d.setDate(d.getDate()-k);var v=S.days[dk(d)]||0;arr.push([d,v]);if(v>max)max=v;}
   arr.forEach(function(x,idx){
     var el=document.createElement('div');if(idx===6)el.className='t';
-    el.innerHTML='<i style="height:'+Math.round(x[1]/max*50)+'px"></i>'+['र','सो','मं','बु','गु','शु','श'][x[0].getDay()];
+    el.innerHTML='<i style="height:'+Math.round(x[1]/max*50)+'px"></i><b>'+x[1]+'</b>'+['र','सो','मं','बु','गु','शु','श'][x[0].getDay()];
     el.title=x[1]+' जाप';w.appendChild(el);
   });
   renderBadges();
