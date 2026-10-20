@@ -143,15 +143,27 @@ document.addEventListener('keydown',function(e){
 
 
 // badges
-var BD=[['🌱','पहला जाप',function(){return S.total>=1;}],['📿','1 माला',function(){return S.total>=108;}],['🔱','1008 जाप',function(){return S.total>=1008;}],
- ['🚩','10,000 जाप',function(){return S.total>=10000;}],['🏵️','1 लाख जाप',function(){return S.total>=100000;}],
- ['🔥','7 दिन',function(){return streak()>=7;}],['🪔','21 दिन',function(){return streak()>=21;}],['🌕','40 दिन',function(){return streak()>=40;}]];
+var BD=[
+ [2,'🔱','1008 जाप',function(){return S.total>=1008;}],
+ [3,'🚩','10,000 जाप',function(){return S.total>=10000;}],
+ [8,'🪷','25,000 जाप',function(){return S.total>=25000;}],
+ [9,'🌺','50,000 जाप',function(){return S.total>=50000;}],
+ [4,'🏵️','1 लाख जाप',function(){return S.total>=100000;}],
+ [10,'🛕','2 लाख जाप',function(){return S.total>=200000;}],
+ [11,'☀️','5 लाख जाप',function(){return S.total>=500000;}],
+ [12,'🕉️','10 लाख जाप',function(){return S.total>=1000000;}],
+ [5,'🔥','7 दिन',function(){return streak()>=7;}],
+ [6,'🪔','21 दिन',function(){return streak()>=21;}],
+ [7,'🌕','40 दिन',function(){return streak()>=40;}],
+ [13,'🌼','60 दिन',function(){return streak()>=60;}],
+ [14,'📿','108 दिन',function(){return streak()>=108;}],
+ [15,'🚩','365 दिन',function(){return streak()>=365;}]];
 function checkBadges(){
-  BD.forEach(function(b,i){if(!S.badges[i]&&b[2]()){S.badges[i]=1;save();toast('🏅 नया बैज: '+b[1]);}});
+  BD.forEach(function(b){if(!S.badges[b[0]]&&b[3]()){S.badges[b[0]]=1;save();toast('🏅 नया बैज: '+b[2]);}});
   renderBadges();
 }
 function renderBadges(){
-  $('badges').innerHTML=BD.map(function(b,i){return '<span class="'+(S.badges[i]?'on':'')+'">'+b[0]+' '+b[1]+'</span>';}).join('');
+  $('badges').innerHTML=BD.map(function(b){return '<span class="'+(S.badges[b[0]]?'on':'')+'">'+b[1]+' '+b[2]+'</span>';}).join('');
 }
 
 // PWA offline support
